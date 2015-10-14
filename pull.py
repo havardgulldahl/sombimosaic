@@ -1,7 +1,7 @@
 #encoding:utf-8
 #
 
-import requests, logging, json, os.path
+import requests, logging, json, os, os.path
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,10 +21,17 @@ def sombiiter(session):
     c = c + LIMITREQUESTS
 
 if __name__ == '__main__':
-  folder = './sombies'
+  import sys
+  topfolder = sys.argv[1]
   sess = requests.Session()
-  for sombi in sombiiter(session=sess):
-    logging.debug('Got new sombie: %s', sombi['id'])
+  for counter, sombi in enumerate(sombiiter(session=sess)):
+    logging.info('Got new sombie #%s: %s', counter, sombi['id'])
+    folder = os.path.join(topfolder, str(counter / 1000))
+    try:
+      os.mkdir(folder)
+    except OSError:
+      if not os.path.isdir(folder):
+        raise
     sidecar = os.path.join(folder, sombi['id'] + '.json')
     pngfile = os.path.join(folder, sombi['id'] + '.png')
     with open(sidecar, 'wb') as sf:
